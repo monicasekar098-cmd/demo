@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>BlogNest</title>
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        BlogNest
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="/">
+            Home
+        </a>
+
+        <a href="/create">
+            Create Blog
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<section class="hero">
+
+    <h1>
+        Welcome to BlogNest
+    </h1>
+
+    <p>
+        Discover stories, ideas and knowledge.
+    </p>
+
+    <a href="/create">
+
+        <button type="button">
+            Create New Blog
+        </button>
+
+    </a>
+
+</section>
+
+
+
+<section class="blog-container">
+
+    <h2>
+        Latest Blogs
+    </h2>
+
+
+    <div id="blogList">
+
+        <p>
+            Loading blogs...
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<script>
+
+    async function loadBlogs() {
+
+        const blogList =
+            document.getElementById("blogList");
+
+
+        try {
+
+            const response =
+                await fetch("/api/blogs");
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load blogs"
+                );
+
+            }
+
+
+            const blogs =
+                await response.json();
+
+
+            if (blogs.length === 0) {
+
+                blogList.innerHTML = `
+
+                    <div class="blog-card">
+
+                        <h3>
+                            No blogs yet
+                        </h3>
+
+                        <p>
+                            Be the first person to create a blog!
+                        </p>
+
+                        <a href="/create">
+
+                            <button type="button">
+                                Create Your First Blog
+                            </button>
+
+                        </a>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            blogList.innerHTML = "";
+
+
+            blogs.forEach(function (blog) {
+
+                const card =
+                    document.createElement("div");
+
+
+                card.className =
+                    "blog-card";
+
+
+                card.innerHTML = `
+
+                    <h3>
+                        ${blog.title}
+                    </h3>
+
+
+                    <p>
+                        ${blog.content}
+                    </p>
+
+
+                    <div style="margin-top: 15px;">
+
+                        <a href="/edit/${blog._id}">
+
+                            <button type="button">
+                                Edit
+                            </button>
+
+                        </a>
+
+
+                        <form
+                            action="/delete-blog/${blog._id}"
+                            method="POST"
+                            style="display: inline;"
+                            onsubmit="return confirmDelete();"
+                        >
+
+                            <button type="submit">
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                `;
+
+
+                blogList.appendChild(card);
+
+            });
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            blogList.innerHTML = `
+
+                <div class="blog-card">
+
+                    <h3>
+                        Something went wrong
+                    </h3>
+
+                    <p>
+                        Could not load blogs.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+
+    function confirmDelete() {
+
+        return confirm(
+            "Are you sure you want to delete this blog?"
+        );
+
+    }
+
+
+
+    loadBlogs();
+
+</script>
+
+
+</body>
+
+</html>

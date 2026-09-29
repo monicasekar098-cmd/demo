@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Blog - BlogNest</title>
+
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<nav class="navbar">
+
+    <div class="logo">
+        BlogNest
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="/">
+            Home
+        </a>
+
+        <a href="/create">
+            Create Blog
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<section class="hero">
+
+    <h1>
+        Edit Your Blog
+    </h1>
+
+    <p>
+        Update your story and publish the changes.
+    </p>
+
+</section>
+
+
+
+<section class="blog-container">
+
+    <div class="blog-card">
+
+        <h2>
+            Update Blog
+        </h2>
+
+        <br>
+
+
+        <form
+            id="editForm"
+            method="POST"
+        >
+
+            <label>
+                Blog Title
+            </label>
+
+            <br><br>
+
+            <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                style="width: 100%;"
+            >
+
+            <br><br>
+
+
+            <label>
+                Blog Content
+            </label>
+
+            <br><br>
+
+            <textarea
+                id="content"
+                name="content"
+                rows="12"
+                required
+                style="width: 100%;"
+            ></textarea>
+
+            <br><br>
+
+
+            <button type="submit">
+                Update Blog
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+
+<script>
+
+    const blogId =
+        window.location.pathname.split("/").pop();
+
+
+    const form =
+        document.getElementById("editForm");
+
+
+    async function loadBlog() {
+
+        try {
+
+            const response =
+                await fetch("/api/blogs/" + blogId);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Blog not found"
+                );
+
+            }
+
+
+            const blog =
+                await response.json();
+
+
+            document.getElementById("title").value =
+                blog.title;
+
+
+            document.getElementById("content").value =
+                blog.content;
+
+
+            form.action =
+                "/edit-blog/" + blogId;
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Failed to load blog.");
+
+        }
+
+    }
+
+
+    form.addEventListener(
+        "submit",
+        function () {
+
+            // Normal form submission
+
+        }
+    );
+
+
+    loadBlog();
+
+</script>
+
+
+</body>
+
+</html>

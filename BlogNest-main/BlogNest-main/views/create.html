@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Blog - BlogNest</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 250px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .ai-button {
+            background: #6c5ce7;
+            color: white;
+        }
+
+        .publish-button {
+            background: #222;
+            color: white;
+        }
+
+        .back-button {
+            background: #ddd;
+            color: #222;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>BlogNest</h1>
+    <p>Create Your Blog</p>
+</header>
+
+<div class="container">
+
+    <h1>Create New Blog</h1>
+
+    <form action="/create-blog" method="POST">
+
+        <label for="title">
+            Blog Title
+        </label>
+
+        <input
+            type="text"
+            id="title"
+            name="title"
+            placeholder="Enter blog title"
+            required
+        >
+
+        <label for="topic">
+            AI Topic
+        </label>
+
+        <input
+            type="text"
+            id="topic"
+            placeholder="Example: Benefits of learning JavaScript"
+        >
+
+        <button
+            type="button"
+            class="ai-button"
+            id="generateButton"
+            onclick="generateBlog()"
+        >
+            ✨ Generate with Gemini
+        </button>
+
+        <div id="status"></div>
+
+        <label for="content">
+            Blog Content
+        </label>
+
+        <textarea
+            id="content"
+            name="content"
+            placeholder="Write your blog content here..."
+            required
+        ></textarea>
+
+        <br>
+
+        <button
+            type="submit"
+            class="publish-button"
+        >
+            Publish Blog
+        </button>
+
+        <button
+            type="button"
+            class="back-button"
+            onclick="window.location.href='/'"
+        >
+            Back
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+
+async function generateBlog() {
+
+    const topic =
+        document.getElementById("topic").value.trim();
+
+    const title =
+        document.getElementById("title");
+
+    const content =
+        document.getElementById("content");
+
+    const button =
+        document.getElementById("generateButton");
+
+    const status =
+        document.getElementById("status");
+
+
+    if (!topic) {
+
+        alert("Please enter a topic first.");
+
+        return;
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "✨ Generating...";
+
+    status.textContent =
+        "Gemini is generating your blog...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/ai/generate-blog",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        topic: topic
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "Generation failed"
+            );
+
+        }
+
+
+        const result =
+            data.result;
+
+
+        content.value =
+            result;
+
+
+        if (!title.value) {
+
+            const lines =
+                result.split("\n");
+
+            const titleLine =
+                lines.find(line =>
+                    line
+                        .toLowerCase()
+                        .startsWith("title:")
+                );
+
+
+            if (titleLine) {
+
+                title.value =
+                    titleLine
+                        .replace(
+                            /^title:\s*/i,
+                            ""
+                        )
+                        .trim();
+
+            } else {
+
+                title.value =
+                    topic;
+
+            }
+
+        }
+
+
+        status.textContent =
+            "✅ Blog generated successfully!";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "❌ " + error.message;
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            "✨ Generate with Gemini";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
